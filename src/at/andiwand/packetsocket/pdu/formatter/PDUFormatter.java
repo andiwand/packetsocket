@@ -13,7 +13,7 @@ public abstract class PDUFormatter {
 		return outputStream.getData();
 	}
 	
-	public abstract void format(PDU pdu, ExtendedDataOutputStream dataWriter);
+	public abstract void format(PDU pdu, ExtendedDataOutputStream out);
 	
 	public PDU parse(byte[] buffer) {
 		return parse(new ExtendedDataInputStream(buffer));
@@ -23,6 +23,6 @@ public abstract class PDUFormatter {
 		return parse(new ExtendedDataInputStream(buffer, offset, length));
 	}
 	
-	public abstract PDU parse(ExtendedDataInputStream outputStream);
+	public abstract PDU parse(ExtendedDataInputStream in);
 	
 }

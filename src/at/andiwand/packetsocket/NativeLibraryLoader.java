@@ -35,9 +35,6 @@ public class NativeLibraryLoader {
 		InputStream inputStream = ClassLoader
 				.getSystemResourceAsStream(resource);
 		OutputStream outputStream = new FileOutputStream(tmp);
-		System.out.println(inputStream);
-		System.out.println(ClassLoader.getSystemResourceAsStream(resource));
-		System.out.println(resource);
 		StreamUtil.write(inputStream, outputStream);
 		
 		System.load(tmp.getAbsolutePath());

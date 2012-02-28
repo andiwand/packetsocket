@@ -9,12 +9,11 @@ public abstract class GenericPDUFormatter<T extends PDU> extends PDUFormatter {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public void format(PDU pdu, ExtendedDataOutputStream outputStream) {
-		formatGeneric((T) pdu, outputStream);
+	public void format(PDU pdu, ExtendedDataOutputStream out) {
+		formatGeneric((T) pdu, out);
 	}
 	
-	protected abstract void formatGeneric(T pdu,
-			ExtendedDataOutputStream outputStream);
+	protected abstract void formatGeneric(T pdu, ExtendedDataOutputStream out);
 	
 	public T parse(byte[] buffer) {
 		return parse(new ExtendedDataInputStream(buffer));
@@ -24,6 +23,6 @@ public abstract class GenericPDUFormatter<T extends PDU> extends PDUFormatter {
 		return parse(new ExtendedDataInputStream(buffer, offset, length));
 	}
 	
-	public abstract T parse(ExtendedDataInputStream inputStream);
+	public abstract T parse(ExtendedDataInputStream in);
 	
 }

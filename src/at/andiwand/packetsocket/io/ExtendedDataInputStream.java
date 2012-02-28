@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
+import at.andiwand.library.io.StreamUtil;
 import at.andiwand.library.network.ip.IPv4Address;
 import at.andiwand.library.network.mac.MACAddress;
 import at.andiwand.library.util.UUIDUtil;
@@ -164,6 +165,14 @@ public class ExtendedDataInputStream extends InputStream {
 			byte[] tmp = new byte[16];
 			dataInputStream.read(tmp);
 			return UUIDUtil.bytesToUuid(tmp);
+		} catch (IOException e) {
+			throw new IllegalStateException("Unreachable section!");
+		}
+	}
+	
+	public byte[] readBytes() {
+		try {
+			return StreamUtil.readBytes(dataInputStream);
 		} catch (IOException e) {
 			throw new IllegalStateException("Unreachable section!");
 		}
