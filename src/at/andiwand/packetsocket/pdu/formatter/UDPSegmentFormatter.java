@@ -3,7 +3,6 @@ package at.andiwand.packetsocket.pdu.formatter;
 import java.util.HashMap;
 import java.util.Map;
 
-import at.andiwand.library.network.Assignments;
 import at.andiwand.packetsocket.io.ExtendedDataInputStream;
 import at.andiwand.packetsocket.io.ExtendedDataOutputStream;
 import at.andiwand.packetsocket.pdu.PDU;
@@ -16,8 +15,8 @@ public class UDPSegmentFormatter extends GenericPDUFormatter<UDPSegment> {
 	private static final Map<Integer, PDUFormatter> PAYLOAD_FORMATTERS = new HashMap<Integer, PDUFormatter>();
 	
 	static {
-		PAYLOAD_FORMATTERS
-				.put(Assignments.DHCP.PORT, new DHCPPacketFormatter());
+		// PAYLOAD_FORMATTERS
+		// .put(Assignments.DHCP.PORT, new DHCPPacketFormatter());
 	}
 	
 	@Override
@@ -30,8 +29,8 @@ public class UDPSegmentFormatter extends GenericPDUFormatter<UDPSegment> {
 		segmentOut.writeShort(0); // length
 		segmentOut.writeShort(0); // checksum
 		
-		int minPort = Math.min(segment.getSourcePort(), segment
-				.getDestinationPort());
+		int minPort = Math.min(segment.getSourcePort(),
+				segment.getDestinationPort());
 		PDUFormatter payloadFormatter = PAYLOAD_FORMATTERS.get(minPort);
 		payloadFormatter.format(segment.getPayload(), segmentOut);
 		
@@ -52,8 +51,8 @@ public class UDPSegmentFormatter extends GenericPDUFormatter<UDPSegment> {
 		in.readShort(); // length
 		in.readShort(); // checksum
 		
-		int minPort = Math.min(segment.getSourcePort(), segment
-				.getDestinationPort());
+		int minPort = Math.min(segment.getSourcePort(),
+				segment.getDestinationPort());
 		PDUFormatter payloadFormatter = PAYLOAD_FORMATTERS.get(minPort);
 		PDU payload = payloadFormatter.parse(in);
 		segment.setPayload(payload);

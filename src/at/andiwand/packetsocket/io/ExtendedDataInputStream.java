@@ -116,6 +116,14 @@ public class ExtendedDataInputStream extends InputStream {
 		}
 	}
 	
+	public long readUnsignedInt() {
+		try {
+			return dataInputStream.readInt() & 0xffffffffl;
+		} catch (IOException e) {
+			throw new IllegalStateException("Unreachable section!");
+		}
+	}
+	
 	public long readLong() {
 		try {
 			return dataInputStream.readLong();

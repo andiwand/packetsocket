@@ -17,10 +17,8 @@ public class TCPSegmentFormatter extends GenericPDUFormatter<TCPSegment> {
 	private static final Map<Integer, PDUFormatter> PAYLOAD_FORMATTERS = new HashMap<Integer, PDUFormatter>();
 	
 	static {
-		PAYLOAD_FORMATTERS.put(Assignments.Telnet.PORT,
+		PAYLOAD_FORMATTERS.put(Assignments.TCP.PORT_TELNET,
 				new TelnetSegmentFormatter());
-		PAYLOAD_FORMATTERS
-				.put(Assignments.DHCP.PORT, new DHCPPacketFormatter());
 	}
 	
 	@Override
@@ -40,8 +38,8 @@ public class TCPSegmentFormatter extends GenericPDUFormatter<TCPSegment> {
 		out.writeShort(segment.getUrgentPointer() & 0xffff);
 		
 		if (segment.getPayload() != null) {
-			int minPort = Math.min(segment.getSourcePort(), segment
-					.getDestinationPort());
+			int minPort = Math.min(segment.getSourcePort(),
+					segment.getDestinationPort());
 			PDUFormatter payloadFormatter = PAYLOAD_FORMATTERS.get(minPort);
 			payloadFormatter.format(segment.getPayload(), out);
 		}
@@ -56,16 +54,21 @@ public class TCPSegmentFormatter extends GenericPDUFormatter<TCPSegment> {
 		segment.setSequenceNumber(in.readInt() & 0xffffffff);
 		segment.setAcknowledgmentNumber(in.readInt() & 0xffffffff);
 		int tmp = in.readInt();
-		segment.setDataOffset((byte) ((tmp >> 28) & 0x0f));
+		int dataOffset = (tmp >> 28) & 0x0f;
+		segment.setDataOffset((byte) dataOffset);
 		segment.setReserved((byte) ((tmp >> 22) & 0x3f));
 		segment.setFlags((byte) ((tmp >> 16) & 0x3f));
 		segment.setWindow((tmp >> 0) & 0xffff);
 		segment.setChecksum(in.readShort());
 		segment.setUrgentPointer(in.readShort() & 0xffff);
 		
+		for (int i = 5; i < dataOffset; i++) {
+			in.readInt();
+		}
+		
 		// TODO: payload?
-		int minPort = Math.min(segment.getSourcePort(), segment
-				.getDestinationPort());
+		int minPort = Math.min(segment.getSourcePort(),
+				segment.getDestinationPort());
 		PDUFormatter payloadFormatter = PAYLOAD_FORMATTERS.get(minPort);
 		PDU payload = payloadFormatter.parse(in);
 		segment.setPayload(payload);
