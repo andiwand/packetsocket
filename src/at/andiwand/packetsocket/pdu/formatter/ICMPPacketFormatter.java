@@ -1,7 +1,5 @@
 package at.andiwand.packetsocket.pdu.formatter;
 
-import java.io.ByteArrayOutputStream;
-
 import at.andiwand.library.network.Assignments;
 import at.andiwand.library.network.InternetChecksum;
 import at.andiwand.packetsocket.io.ExtendedDataInputStream;
@@ -20,16 +18,18 @@ public class ICMPPacketFormatter extends GenericPDUFormatter<ICMPPacket> {
 		packetWriter.writeByte(packet.getCode());
 		packetWriter.writeShort(0); // checksum
 		
+		ICMPPacket.ICMPPayload payload = packet.getPayload();
+		
 		switch (packet.getType()) {
 		case Assignments.ICMP.TYPE_ECHO:
 		case Assignments.ICMP.TYPE_ECHO_REPLY:
-			ICMPPacket.Echo echoPacket = (ICMPPacket.Echo) packet;
-			packetWriter.writeShort(echoPacket.getIdentifier());
-			packetWriter.writeShort(echoPacket.getSequenceNumber());
-			packetWriter.write(echoPacket.getData());
+			ICMPPacket.EchoPayload echoPayload = (ICMPPacket.EchoPayload) payload;
+			packetWriter.writeShort(echoPayload.getIdentifier());
+			packetWriter.writeShort(echoPayload.getSequenceNumber());
+			packetWriter.write(echoPayload.getData());
 			break;
 		default:
-			throw new IllegalStateException("Unreachable section");
+			throw new IllegalStateException("Unreachable section!");
 		}
 		
 		byte[] bytes = packetWriter.getData();
@@ -43,36 +43,28 @@ public class ICMPPacketFormatter extends GenericPDUFormatter<ICMPPacket> {
 	
 	@Override
 	public ICMPPacket parse(ExtendedDataInputStream inputStream) {
-		ICMPPacket packet;
+		ICMPPacket packet = new ICMPPacket();
 		
-		byte type = inputStream.readByte();
-		byte code = inputStream.readByte();
+		packet.setType(inputStream.readByte());
+		packet.setCode(inputStream.readByte());
 		inputStream.readShort(); // checksum
 		
-		switch (type) {
+		ICMPPacket.ICMPPayload payload;
+		
+		switch (packet.getCode()) {
 		case Assignments.ICMP.TYPE_ECHO:
 		case Assignments.ICMP.TYPE_ECHO_REPLY:
-			ICMPPacket.Echo echoPacket = new ICMPPacket.Echo();
-			
-			echoPacket.setIdentifier(inputStream.readUnsignedShort());
-			echoPacket.setSequenceNumber(inputStream.readUnsignedShort());
-			
-			ByteArrayOutputStream dataOutputStream = new ByteArrayOutputStream();
-			
-			int read;
-			while ((read = inputStream.read()) != -1)
-				dataOutputStream.write(read);
-			
-			echoPacket.setData(dataOutputStream.toByteArray());
-			
-			packet = echoPacket;
+			ICMPPacket.EchoPayload echoPayload = new ICMPPacket.EchoPayload();
+			echoPayload.setIdentifier(inputStream.readUnsignedShort());
+			echoPayload.setSequenceNumber(inputStream.readUnsignedShort());
+			echoPayload.setData(inputStream.readBytes());
+			payload = echoPayload;
 			break;
 		default:
 			throw new IllegalStateException("Unsupported type!");
 		}
 		
-		packet.setType(type);
-		packet.setCode(code);
+		packet.setPayload(payload);
 		
 		return packet;
 	}

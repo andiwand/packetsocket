@@ -24,7 +24,7 @@ public class Ethernet2FrameFormatter extends
 	private static PDUFormatter getPayloadFormatter(short type) {
 		PDUFormatter result = PAYLOAD_FORMATTERS.get(type);
 		if (result == null)
-			throw new IllegalArgumentException("Unregistered type!");
+			throw new IllegalArgumentException("Unregistered type! " + type);
 		return result;
 	}
 	

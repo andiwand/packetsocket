@@ -8,6 +8,7 @@ import at.andiwand.library.network.InternetChecksum;
 import at.andiwand.packetsocket.io.ExtendedDataInputStream;
 import at.andiwand.packetsocket.io.ExtendedDataOutputStream;
 import at.andiwand.packetsocket.pdu.IPv4Packet;
+import at.andiwand.packetsocket.pdu.PDU;
 
 
 // TODO implement fragment offset, options
@@ -32,32 +33,54 @@ public class IPv4PacketFormatter extends GenericPDUFormatter<IPv4Packet> {
 	}
 	
 	@Override
-	protected void formatGeneric(IPv4Packet packet,
-			ExtendedDataOutputStream outputStream) {
-		ExtendedDataOutputStream packetOutputStream = new ExtendedDataOutputStream();
+	protected void formatGeneric(IPv4Packet packet, ExtendedDataOutputStream out) {
+		ExtendedDataOutputStream packetOut = new ExtendedDataOutputStream();
 		
 		int versionIHL = (packet.getVersion() & 0x0f) << 4;
-		packetOutputStream.writeByte(versionIHL);
-		packetOutputStream.writeByte(packet.getTypeOfService());
-		packetOutputStream.writeShort(0); // total length
-		packetOutputStream.writeShort(packet.getIdentication());
+		packetOut.writeByte(versionIHL);
+		packetOut.writeByte(packet.getTypeOfService());
+		packetOut.writeShort(0); // total length
+		packetOut.writeShort(packet.getIdentication());
 		int flagsFragmentOffset = ((packet.getFlags() & 0x07) << 13)
 				| ((0 & 0x1fff) << 0);
-		packetOutputStream.writeShort(flagsFragmentOffset);
-		packetOutputStream.writeByte(packet.getTimeToLive());
-		packetOutputStream.writeByte(packet.getProtocol());
-		packetOutputStream.writeShort(0); // checksum
-		packetOutputStream.writeIPv4Address(packet.getSource());
-		packetOutputStream.writeIPv4Address(packet.getDestination());
+		packetOut.writeShort(flagsFragmentOffset);
+		packetOut.writeByte(packet.getTimeToLive());
+		packetOut.writeByte(packet.getProtocol());
+		packetOut.writeShort(0); // checksum
+		packetOut.writeIPv4Address(packet.getSource());
+		packetOut.writeIPv4Address(packet.getDestination());
 		
-		int headerSize = packetOutputStream.size();
+		int headerSize = packetOut.size();
 		int ihl = headerSize >> 2;
 		
 		PDUFormatter payloadFormatter = getPayloadFormatter(packet
 				.getProtocol());
-		payloadFormatter.format(packet.getPayload(), packetOutputStream);
+		if (packet.getProtocol() == Assignments.IP.PROTOCOL_TCP) {
+			byte[] payload = payloadFormatter.format(packet.getPayload());
+			payload[16] = 0;
+			payload[17] = 0;
+			
+			ExtendedDataOutputStream tcpChecksumStream = new ExtendedDataOutputStream();
+			tcpChecksumStream.writeIPv4Address(packet.getSource());
+			tcpChecksumStream.writeIPv4Address(packet.getDestination());
+			tcpChecksumStream.writeByte(0);
+			tcpChecksumStream.writeByte(Assignments.IP.PROTOCOL_TCP);
+			tcpChecksumStream.writeShort(payload.length);
+			tcpChecksumStream.write(payload);
+			if ((tcpChecksumStream.size() & 0x01) != 0)
+				tcpChecksumStream.writeByte(0);
+			
+			short tcpChecksum = InternetChecksum
+					.calculateChecksum(tcpChecksumStream.getData());
+			payload[16] = (byte) ((tcpChecksum >> 8) & 0xff);
+			payload[17] = (byte) ((tcpChecksum >> 0) & 0xff);
+			
+			packetOut.write(payload);
+		} else {
+			payloadFormatter.format(packet.getPayload(), packetOut);
+		}
 		
-		byte[] bytes = packetOutputStream.getData();
+		byte[] bytes = packetOut.getData();
 		int totalLength = bytes.length;
 		
 		bytes[0] |= ihl & 0x0f;
@@ -69,37 +92,43 @@ public class IPv4PacketFormatter extends GenericPDUFormatter<IPv4Packet> {
 		bytes[10] = (byte) (checksum >> 8);
 		bytes[11] = (byte) (checksum >> 0);
 		
-		outputStream.write(bytes);
+		out.write(bytes);
 	}
 	
-	public IPv4Packet parse(ExtendedDataInputStream inputStream) {
+	public IPv4Packet parse(ExtendedDataInputStream in) {
 		IPv4Packet packet = new IPv4Packet();
 		
-		byte versionIHL = inputStream.readByte();
+		byte versionIHL = in.readByte();
 		packet.setVersion((byte) ((versionIHL >> 4) & 0x0f));
 		int ihl = (versionIHL & 0x0f);
-		packet.setTypeOfService(inputStream.readByte());
-		inputStream.readUnsignedShort(); // total length
-		packet.setIdentication(inputStream.readUnsignedShort());
-		short flagsFragmentOffset = inputStream.readShort();
+		packet.setTypeOfService(in.readByte());
+		int totalLength = in.readUnsignedShort();
+		packet.setIdentication(in.readUnsignedShort());
+		short flagsFragmentOffset = in.readShort();
 		packet.setFlags((byte) ((flagsFragmentOffset >> 13) & 0x07));
 		int fragmentOffset = flagsFragmentOffset & 0x1fff;
 		if (fragmentOffset != 0)
 			throw new UnsupportedOperationException(
 					"Unsupported fragment offset!");
-		packet.setTimeToLive((short) inputStream.readUnsignedByte());
-		packet.setProtocol(inputStream.readByte());
-		inputStream.readShort(); // checksum
-		packet.setSource(inputStream.readIPv4Address());
-		packet.setDestination(inputStream.readIPv4Address());
+		packet.setTimeToLive((short) in.readUnsignedByte());
+		packet.setProtocol(in.readByte());
+		in.readShort(); // checksum
+		packet.setSource(in.readIPv4Address());
+		packet.setDestination(in.readIPv4Address());
 		
-		for (int i = 5; i < ihl; i++) {
-			inputStream.readInt(); // kill options
-		}
+		// kill options
+		for (int i = 5; i < ihl; i++)
+			in.readInt();
 		
+		int payloadSize = totalLength - (ihl << 2);
+		byte[] payloadBuffer = new byte[payloadSize];
+		in.read(payloadBuffer);
+		ExtendedDataInputStream payloadInputStream = new ExtendedDataInputStream(
+				payloadBuffer);
 		PDUFormatter payloadFormatter = getPayloadFormatter(packet
 				.getProtocol());
-		packet.setPayload(payloadFormatter.parse(inputStream));
+		PDU payload = payloadFormatter.parse(payloadInputStream);
+		packet.setPayload(payload);
 		
 		return packet;
 	}

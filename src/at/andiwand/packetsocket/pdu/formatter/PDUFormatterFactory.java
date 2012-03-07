@@ -16,22 +16,22 @@ import at.andiwand.packetsocket.pdu.UDPSegment;
 
 public class PDUFormatterFactory {
 	
-	private static final Map<Class<? extends PDU>, Class<? extends PDUFormatter>> FORMATTER_CLASS_MAP = new HashMap<Class<? extends PDU>, Class<? extends PDUFormatter>>();
+	private static final Map<Class<? extends PDU>, Class<? extends PDUFormatter>> FORMATTER_CLASS_MAP = new HashMap<Class<? extends PDU>, Class<? extends PDUFormatter>>() {
+		private static final long serialVersionUID = -4035097606420938382L;
+		
+		{
+			put(Ethernet2Frame.class, Ethernet2FrameFormatter.class);
+			put(ARPPacket.class, ARPPacketFormatter.class);
+			put(IPv4Packet.class, IPv4PacketFormatter.class);
+			put(ICMPPacket.class, ICMPPacketFormatter.class);
+			put(TCPSegment.class, TCPSegmentFormatter.class);
+			put(UDPSegment.class, UDPSegmentFormatter.class);
+			put(DHCPPacket.class, DHCPPacketFormatter.class);
+			put(TelnetSegment.class, TelnetSegmentFormatter.class);
+		}
+	};
 	
 	public static final PDUFormatterFactory FACTORY = new PDUFormatterFactory();
-	
-	static {
-		FORMATTER_CLASS_MAP.put(Ethernet2Frame.class,
-				Ethernet2FrameFormatter.class);
-		FORMATTER_CLASS_MAP.put(ARPPacket.class, ARPPacketFormatter.class);
-		FORMATTER_CLASS_MAP.put(IPv4Packet.class, IPv4PacketFormatter.class);
-		FORMATTER_CLASS_MAP.put(ICMPPacket.class, ICMPPacketFormatter.class);
-		FORMATTER_CLASS_MAP.put(TCPSegment.class, TCPSegmentFormatter.class);
-		FORMATTER_CLASS_MAP.put(UDPSegment.class, UDPSegmentFormatter.class);
-		FORMATTER_CLASS_MAP.put(DHCPPacket.class, DHCPPacketFormatter.class);
-		FORMATTER_CLASS_MAP.put(TelnetSegment.class,
-				TelnetSegmentFormatter.class);
-	}
 	
 	private final Map<Class<? extends PDU>, Class<? extends PDUFormatter>> formatterClassMap = new HashMap<Class<? extends PDU>, Class<? extends PDUFormatter>>(
 			FORMATTER_CLASS_MAP);
@@ -45,7 +45,7 @@ public class PDUFormatterFactory {
 		try {
 			return getFormatterClass(pduClass).newInstance();
 		} catch (Exception e) {
-			return null;
+			throw new IllegalStateException("Cannot create instance!");
 		}
 	}
 	

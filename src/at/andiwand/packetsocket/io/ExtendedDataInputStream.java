@@ -178,6 +178,25 @@ public class ExtendedDataInputStream extends InputStream {
 		}
 	}
 	
+	@Override
+	public int available() {
+		try {
+			return dataInputStream.available();
+		} catch (IOException e) {
+			throw new IllegalStateException("Unreachable section!");
+		}
+	}
+	
+	@Override
+	public long skip(long n) {
+		try {
+			return dataInputStream.skip(n);
+		} catch (IOException e) {
+			throw new IllegalStateException("Unreachable section!");
+		}
+	}
+	
+	@Override
 	public void reset() {
 		inputStream = new ByteArrayInputStream(data, offset, length);
 		dataInputStream = new DataInputStream(inputStream);

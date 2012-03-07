@@ -16,8 +16,8 @@ public class TestEthernetSocket {
 		
 		try {
 			socket = new EthernetSocket(EthernetSocket.PROTOCOL_ALL);
-			socket.bind("wlan0");
-			socket.enablePromiscMode("wlan0");
+			socket.bind("eth0");
+			socket.enablePromiscMode("eth0");
 			
 			MACAddress src = new MACAddress("00:24:8c:fd:fe:96");
 			Inet4Address srcIp = (Inet4Address) Inet4Address
@@ -44,7 +44,7 @@ public class TestEthernetSocket {
 			outputStream.write(dst.toByteArray());
 			outputStream.write(dstIp.getAddress());
 			
-			socket.send(arrayOutputStream.toByteArray());
+			System.out.println(socket.send(arrayOutputStream.toByteArray()));
 			
 			byte[] buffer = new byte[1500];
 			while (true) {
