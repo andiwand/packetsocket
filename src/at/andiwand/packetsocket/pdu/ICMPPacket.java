@@ -51,12 +51,12 @@ public class ICMPPacket extends PDU {
 		return payload;
 	}
 	
-	public void setType(byte type) {
-		this.type = type;
+	public void setType(int type) {
+		this.type = (byte) type;
 	}
 	
-	public void setCode(byte code) {
-		this.code = code;
+	public void setCode(int code) {
+		this.code = (byte) code;
 	}
 	
 	public void setPayload(ICMPPayload payload) {

@@ -9,7 +9,7 @@ import at.andiwand.library.network.mac.MACAddress;
 import at.andiwand.packetsocket.EthernetSocket;
 
 
-public class TestEthernetSocket {
+public class EthernetSocketTest {
 	
 	public static void main(String[] args) {
 		EthernetSocket socket = null;

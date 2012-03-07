@@ -34,8 +34,8 @@ public class Ethernet2Frame extends PDU {
 		this.source = source;
 	}
 	
-	public void setType(short type) {
-		this.type = type;
+	public void setType(int type) {
+		this.type = (short) type;
 	}
 	
 	public void setPayload(PDU payload) {
