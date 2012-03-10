@@ -48,8 +48,7 @@ public class DHCPPacketFormatter extends GenericPDUFormatter<DHCPPacket> {
 			ExtendedDataOutputStream outputStream) {
 		outputStream.writeByte(packet.getOperation());
 		outputStream.writeByte(packet.getHardwareType());
-		outputStream.writeByte(Assignments.ARP.getHardwareLength(packet
-				.getHardwareType()));
+		outputStream.writeByte(Assignments.ARP.getHardwareLength(packet.getHardwareType()));
 		outputStream.writeByte(packet.getHops());
 		outputStream.writeInt(packet.getTransactionId());
 		outputStream.writeShort(packet.getSecondsElapsed());
@@ -58,8 +57,8 @@ public class DHCPPacketFormatter extends GenericPDUFormatter<DHCPPacket> {
 		outputStream.writeIPv4Address(packet.getYourAddess());
 		outputStream.writeIPv4Address(packet.getServerAddess());
 		outputStream.writeIPv4Address(packet.getRelayAgentAddess());
-		writeHardwareAddress(packet.getClientHardwareAddress(), packet
-				.getHardwareType(), outputStream);
+		writeHardwareAddress(packet.getClientHardwareAddress(),
+				packet.getHardwareType(), outputStream);
 		outputStream.write(Arrays.copyOf(packet.getServerName().getBytes(
 				Assignments.DHCP.CHARSET), Assignments.DHCP.SIZE_SERVER_NAME));
 		outputStream.write(Arrays.copyOf(packet.getServerName().getBytes(
@@ -73,8 +72,7 @@ public class DHCPPacketFormatter extends GenericPDUFormatter<DHCPPacket> {
 			case Assignments.DHCP.OPTION_SUBNET_MASK:
 				SubnetMaskOption subnetMaskOption = (SubnetMaskOption) option;
 				outputStream.writeByte(Assignments.ARP.IPV4_ADDRESS_LENGTH);
-				outputStream.writeIPv4Address(subnetMaskOption.getSubnetMask()
-						.toIPv4Address());
+				outputStream.writeIPv4Address(subnetMaskOption.getSubnetMask().toIPv4Address());
 				break;
 			case Assignments.DHCP.OPTION_REQUESTED_IP_ADDRESS:
 			case Assignments.DHCP.OPTION_SERVER_IDENTIFIER:
@@ -85,8 +83,8 @@ public class DHCPPacketFormatter extends GenericPDUFormatter<DHCPPacket> {
 			case Assignments.DHCP.OPTION_ROUTER:
 			case Assignments.DHCP.OPTION_NAME_SERVER:
 				IPListOptionTemplate ipList = (IPListOptionTemplate) option;
-				if (ipList.isEmpty())
-					throw new IllegalArgumentException("Empty list!");
+				if (ipList.isEmpty()) throw new IllegalArgumentException(
+						"Empty list!");
 				
 				outputStream.writeByte(Assignments.ARP.IPV4_ADDRESS_LENGTH
 						* ipList.size());
@@ -114,9 +112,8 @@ public class DHCPPacketFormatter extends GenericPDUFormatter<DHCPPacket> {
 		
 		packet.setOperation(inputStream.readByte());
 		packet.setHardwareType(inputStream.readByte());
-		if (inputStream.readByte() != Assignments.ARP.getHardwareLength(packet
-				.getHardwareType()))
-			throw new IllegalStateException("Illegal hardware address length!");
+		if (inputStream.readByte() != Assignments.ARP.getHardwareLength(packet.getHardwareType())) throw new IllegalStateException(
+				"Illegal hardware address length!");
 		packet.setHops((short) inputStream.readUnsignedByte());
 		packet.setTransactionId(inputStream.readInt());
 		packet.setSecondsElapsed(inputStream.readUnsignedShort());
@@ -125,15 +122,13 @@ public class DHCPPacketFormatter extends GenericPDUFormatter<DHCPPacket> {
 		packet.setYourAddress(inputStream.readIPv4Address());
 		packet.setServerAddress(inputStream.readIPv4Address());
 		packet.setRelayAgentAddress(inputStream.readIPv4Address());
-		packet.setClientHardwareAddress(readHardwareAddress(packet
-				.getHardwareType(), inputStream));
+		packet.setClientHardwareAddress(readHardwareAddress(
+				packet.getHardwareType(), inputStream));
 		inputStream.read(stringBuffer, 0, Assignments.DHCP.SIZE_SERVER_NAME);
 		packet.setServerName(new String(stringBuffer, 0,
-				Assignments.DHCP.SIZE_SERVER_NAME, Assignments.DHCP.CHARSET)
-				.trim());
+				Assignments.DHCP.SIZE_SERVER_NAME, Assignments.DHCP.CHARSET).trim());
 		inputStream.read(stringBuffer);
-		packet.setFile(new String(stringBuffer, Assignments.DHCP.CHARSET)
-				.trim());
+		packet.setFile(new String(stringBuffer, Assignments.DHCP.CHARSET).trim());
 		inputStream.readInt(); // magic cookie
 		
 		while (true) {
@@ -152,8 +147,8 @@ public class DHCPPacketFormatter extends GenericPDUFormatter<DHCPPacket> {
 			switch (optionType) {
 			case Assignments.DHCP.OPTION_SUBNET_MASK:
 				SubnetMaskOption subnetMaskOption = new SubnetMaskOption();
-				subnetMaskOption.setSubnetMask(new SubnetMask(inputStream
-						.readIPv4Address()));
+				subnetMaskOption.setSubnetMask(new SubnetMask(
+						inputStream.readIPv4Address()));
 				packet.addOption(subnetMaskOption);
 				break;
 			case Assignments.DHCP.OPTION_REQUESTED_IP_ADDRESS:

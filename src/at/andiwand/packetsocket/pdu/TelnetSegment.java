@@ -2,6 +2,7 @@ package at.andiwand.packetsocket.pdu;
 
 import java.util.Arrays;
 
+
 public class TelnetSegment extends PDU {
 	
 	private byte[] data;

@@ -27,15 +27,14 @@ public class NativeLibraryLoader {
 		String os = System.getProperty("os.name").toLowerCase();
 		String resource = LIBRARY_MAP.get(os);
 		
-		if (resource == null)
-			throw new IllegalStateException("Unsupported operating system!");
+		if (resource == null) throw new IllegalStateException(
+				"Unsupported operating system!");
 		
 		File tmp = File.createTempFile(TMP_PREFIX, "");
 		
-		InputStream inputStream = ClassLoader
-				.getSystemResourceAsStream(resource);
+		InputStream inputStream = ClassLoader.getSystemResourceAsStream(resource);
 		OutputStream outputStream = new FileOutputStream(tmp);
-		StreamUtil.write(inputStream, outputStream);
+		StreamUtil.writeStream(inputStream, outputStream);
 		
 		System.load(tmp.getAbsolutePath());
 	}

@@ -58,19 +58,17 @@ public class ARPPacketFormatter extends GenericPDUFormatter<ARPPacket> {
 			ExtendedDataOutputStream outputStream) {
 		outputStream.writeShort(packet.getHardwareType());
 		outputStream.writeShort(packet.getProtocolType());
-		outputStream.writeByte(Assignments.ARP.getHardwareLength(packet
-				.getHardwareType()));
-		outputStream.writeByte(Assignments.ARP.getProtocolLength(packet
-				.getProtocolType()));
+		outputStream.writeByte(Assignments.ARP.getHardwareLength(packet.getHardwareType()));
+		outputStream.writeByte(Assignments.ARP.getProtocolLength(packet.getProtocolType()));
 		outputStream.writeShort(packet.getOperation());
-		writeHardwareAddress(packet.getSenderHardwareAddress(), packet
-				.getHardwareType(), outputStream);
-		writeProtocolAddress(packet.getSenderProtocolAddress(), packet
-				.getProtocolType(), outputStream);
-		writeHardwareAddress(packet.getTargetHardwareAddress(), packet
-				.getHardwareType(), outputStream);
-		writeProtocolAddress(packet.getTargetProtocolAddress(), packet
-				.getProtocolType(), outputStream);
+		writeHardwareAddress(packet.getSenderHardwareAddress(),
+				packet.getHardwareType(), outputStream);
+		writeProtocolAddress(packet.getSenderProtocolAddress(),
+				packet.getProtocolType(), outputStream);
+		writeHardwareAddress(packet.getTargetHardwareAddress(),
+				packet.getHardwareType(), outputStream);
+		writeProtocolAddress(packet.getTargetProtocolAddress(),
+				packet.getProtocolType(), outputStream);
 	}
 	
 	@Override
@@ -80,23 +78,21 @@ public class ARPPacketFormatter extends GenericPDUFormatter<ARPPacket> {
 		packet.setHardwareType(inputStream.readShort());
 		packet.setProtocolType(inputStream.readShort());
 		
-		if (inputStream.readByte() != Assignments.ARP.getHardwareLength(packet
-				.getHardwareType()))
-			throw new IllegalStateException("Illegal hardware address length");
+		if (inputStream.readByte() != Assignments.ARP.getHardwareLength(packet.getHardwareType())) throw new IllegalStateException(
+				"Illegal hardware address length");
 		
-		if (inputStream.readByte() != Assignments.ARP.getProtocolLength(packet
-				.getProtocolType()))
-			throw new IllegalStateException("Illegal protocol address length");
+		if (inputStream.readByte() != Assignments.ARP.getProtocolLength(packet.getProtocolType())) throw new IllegalStateException(
+				"Illegal protocol address length");
 		
 		packet.setOperation(inputStream.readShort());
-		packet.setSenderHardwareAddress(readHardwareAddress(packet
-				.getHardwareType(), inputStream));
-		packet.setSenderProtocolAddress(readProtocolAddress(packet
-				.getProtocolType(), inputStream));
-		packet.setTargetHardwareAddress(readHardwareAddress(packet
-				.getHardwareType(), inputStream));
-		packet.setTargetProtocolAddress(readProtocolAddress(packet
-				.getProtocolType(), inputStream));
+		packet.setSenderHardwareAddress(readHardwareAddress(
+				packet.getHardwareType(), inputStream));
+		packet.setSenderProtocolAddress(readProtocolAddress(
+				packet.getProtocolType(), inputStream));
+		packet.setTargetHardwareAddress(readHardwareAddress(
+				packet.getHardwareType(), inputStream));
+		packet.setTargetProtocolAddress(readProtocolAddress(
+				packet.getProtocolType(), inputStream));
 		
 		return packet;
 	}

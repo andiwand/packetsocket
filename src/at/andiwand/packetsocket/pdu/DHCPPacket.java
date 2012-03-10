@@ -10,7 +10,7 @@ import at.andiwand.library.network.ip.SubnetMask;
 
 public class DHCPPacket extends PDU {
 	
-	public static abstract class Option extends PDU {
+	public static abstract class Option {
 		private byte type;
 		
 		public final byte getType() {

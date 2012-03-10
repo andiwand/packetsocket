@@ -1,9 +1,11 @@
 package at.andiwand.packetsocket.pdu;
 
 // TODO: implement icmp message types
-public abstract class ICMPPacket extends PDU {
+public class ICMPPacket extends PDU {
 	
-	public static class Echo extends ICMPPacket {
+	public static abstract class ICMPPayload extends PDU {}
+	
+	public static class EchoPayload extends ICMPPayload {
 		private int identifier;
 		private int sequenceNumber;
 		private byte[] data;
@@ -35,6 +37,7 @@ public abstract class ICMPPacket extends PDU {
 	
 	private byte type;
 	private byte code;
+	private ICMPPayload payload;
 	
 	public byte getType() {
 		return type;
@@ -44,12 +47,20 @@ public abstract class ICMPPacket extends PDU {
 		return code;
 	}
 	
-	public void setType(byte type) {
-		this.type = type;
+	public ICMPPayload getPayload() {
+		return payload;
 	}
 	
-	public void setCode(byte code) {
-		this.code = code;
+	public void setType(int type) {
+		this.type = (byte) type;
+	}
+	
+	public void setCode(int code) {
+		this.code = (byte) code;
+	}
+	
+	public void setPayload(ICMPPayload payload) {
+		this.payload = payload;
 	}
 	
 }

@@ -123,16 +123,16 @@ public class EthernetSocket {
 	}
 	
 	public void bind(String interfaceName) throws EthernetSocketException {
-		if (closed)
-			throw new EthernetSocketException("Socket is already closed!");
+		if (closed) throw new EthernetSocketException(
+				"Socket is already closed!");
 		
 		bindImpl(socket, interfaceName);
 	}
 	
 	public void enablePromiscMode(String interfaceName)
 			throws EthernetSocketException {
-		if (closed)
-			throw new EthernetSocketException("Socket is already closed!");
+		if (closed) throw new EthernetSocketException(
+				"Socket is already closed!");
 		
 		enablePromiscModeImpl(socket, interfaceName);
 	}
@@ -143,8 +143,8 @@ public class EthernetSocket {
 	
 	public int receive(byte[] buffer, int offset, int length)
 			throws EthernetSocketException {
-		if (closed)
-			throw new EthernetSocketException("Socket is already closed!");
+		if (closed) throw new EthernetSocketException(
+				"Socket is already closed!");
 		
 		return receiveImpl(socket, buffer, offset, length, 0);
 	}
@@ -156,8 +156,8 @@ public class EthernetSocket {
 	
 	public int receiveFrom(String interfaceName, byte[] buffer, int offset,
 			int length) throws EthernetSocketException {
-		if (closed)
-			throw new EthernetSocketException("Socket is already closed!");
+		if (closed) throw new EthernetSocketException(
+				"Socket is already closed!");
 		
 		return receiveFromImpl(socket, interfaceName, buffer, offset, length, 0);
 	}
@@ -168,8 +168,8 @@ public class EthernetSocket {
 	
 	public int send(byte[] buffer, int offset, int length)
 			throws EthernetSocketException {
-		if (closed)
-			throw new EthernetSocketException("Socket is already closed!");
+		if (closed) throw new EthernetSocketException(
+				"Socket is already closed!");
 		
 		return sendImpl(socket, buffer, offset, length, 0);
 	}
@@ -181,8 +181,8 @@ public class EthernetSocket {
 	
 	public int sendTo(String interfaceName, byte[] buffer, int offset,
 			int length) throws EthernetSocketException {
-		if (closed)
-			throw new EthernetSocketException("Socket is already closed!");
+		if (closed) throw new EthernetSocketException(
+				"Socket is already closed!");
 		
 		return sendToImpl(socket, interfaceName, buffer, offset, length, 0);
 	}

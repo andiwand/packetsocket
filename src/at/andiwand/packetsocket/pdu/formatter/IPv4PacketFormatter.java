@@ -8,6 +8,7 @@ import at.andiwand.library.network.InternetChecksum;
 import at.andiwand.packetsocket.io.ExtendedDataInputStream;
 import at.andiwand.packetsocket.io.ExtendedDataOutputStream;
 import at.andiwand.packetsocket.pdu.IPv4Packet;
+import at.andiwand.packetsocket.pdu.PDU;
 
 
 // TODO implement fragment offset, options
@@ -53,7 +54,28 @@ public class IPv4PacketFormatter extends GenericPDUFormatter<IPv4Packet> {
 		int ihl = headerSize >> 2;
 		
 		PDUFormatter payloadFormatter = getPayloadFormatter(packet.getProtocol());
-		payloadFormatter.format(packet.getPayload(), packetOut);
+		if (packet.getProtocol() == Assignments.IP.PROTOCOL_TCP) {
+			byte[] payload = payloadFormatter.format(packet.getPayload());
+			payload[16] = 0;
+			payload[17] = 0;
+			
+			ExtendedDataOutputStream tcpChecksumStream = new ExtendedDataOutputStream();
+			tcpChecksumStream.writeIPv4Address(packet.getSource());
+			tcpChecksumStream.writeIPv4Address(packet.getDestination());
+			tcpChecksumStream.writeByte(0);
+			tcpChecksumStream.writeByte(Assignments.IP.PROTOCOL_TCP);
+			tcpChecksumStream.writeShort(payload.length);
+			tcpChecksumStream.write(payload);
+			if ((tcpChecksumStream.size() & 0x01) != 0) tcpChecksumStream.writeByte(0);
+			
+			short tcpChecksum = InternetChecksum.calculateChecksum(tcpChecksumStream.getData());
+			payload[16] = (byte) ((tcpChecksum >> 8) & 0xff);
+			payload[17] = (byte) ((tcpChecksum >> 0) & 0xff);
+			
+			packetOut.write(payload);
+		} else {
+			payloadFormatter.format(packet.getPayload(), packetOut);
+		}
 		
 		byte[] bytes = packetOut.getData();
 		int totalLength = bytes.length;
@@ -95,13 +117,14 @@ public class IPv4PacketFormatter extends GenericPDUFormatter<IPv4Packet> {
 			in.readInt();
 		}
 		
-		int payloadSize = totalLength - (ihl - 5) * 4;
+		int payloadSize = totalLength - (ihl << 2);
 		byte[] payloadBuffer = new byte[payloadSize];
 		in.read(payloadBuffer);
-		ExtendedDataInputStream payloadIn = new ExtendedDataInputStream(
+		ExtendedDataInputStream payloadInputStream = new ExtendedDataInputStream(
 				payloadBuffer);
 		PDUFormatter payloadFormatter = getPayloadFormatter(packet.getProtocol());
-		packet.setPayload(payloadFormatter.parse(payloadIn));
+		PDU payload = payloadFormatter.parse(payloadInputStream);
+		packet.setPayload(payload);
 		
 		return packet;
 	}

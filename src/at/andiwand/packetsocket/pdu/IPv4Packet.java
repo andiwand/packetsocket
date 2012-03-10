@@ -57,32 +57,32 @@ public class IPv4Packet extends PDU {
 		return payload;
 	}
 	
-	public void setVersion(byte version) {
-		this.version = version;
+	public void setVersion(int version) {
+		this.version = (byte) version;
 	}
 	
-	public void setTypeOfService(byte typeOfService) {
-		this.typeOfService = typeOfService;
+	public void setTypeOfService(int typeOfService) {
+		this.typeOfService = (byte) typeOfService;
 	}
 	
 	public void setIdentication(int identication) {
 		this.identication = identication;
 	}
 	
-	public void setFlags(byte flags) {
-		this.flags = flags;
+	public void setFlags(int flags) {
+		this.flags = (byte) flags;
 	}
 	
-	public void setFragmentOffset(short fragmentOffset) {
-		this.fragmentOffset = fragmentOffset;
+	public void setFragmentOffset(int fragmentOffset) {
+		this.fragmentOffset = (short) fragmentOffset;
 	}
 	
-	public void setTimeToLive(short timeToLive) {
-		this.timeToLive = timeToLive;
+	public void setTimeToLive(int timeToLive) {
+		this.timeToLive = (short) timeToLive;
 	}
 	
-	public void setProtocol(byte protocol) {
-		this.protocol = protocol;
+	public void setProtocol(int protocol) {
+		this.protocol = (byte) protocol;
 	}
 	
 	public void setSource(IPv4Address source) {

@@ -9,22 +9,20 @@ import at.andiwand.library.network.mac.MACAddress;
 import at.andiwand.packetsocket.EthernetSocket;
 
 
-public class TestEthernetSocket {
+public class EthernetSocketTest {
 	
 	public static void main(String[] args) {
 		EthernetSocket socket = null;
 		
 		try {
 			socket = new EthernetSocket(EthernetSocket.PROTOCOL_ALL);
-			socket.bind("wlan0");
-			socket.enablePromiscMode("wlan0");
+			socket.bind("eth0");
+			socket.enablePromiscMode("eth0");
 			
 			MACAddress src = new MACAddress("00:24:8c:fd:fe:96");
-			Inet4Address srcIp = (Inet4Address) Inet4Address
-					.getByName("192.168.15.112");
+			Inet4Address srcIp = (Inet4Address) Inet4Address.getByName("192.168.15.112");
 			MACAddress dst = MACAddress.BROADCAST;
-			Inet4Address dstIp = (Inet4Address) Inet4Address
-					.getByName("192.168.15.111");
+			Inet4Address dstIp = (Inet4Address) Inet4Address.getByName("192.168.15.111");
 			
 			ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
 			DataOutputStream outputStream = new DataOutputStream(
@@ -44,7 +42,7 @@ public class TestEthernetSocket {
 			outputStream.write(dst.toByteArray());
 			outputStream.write(dstIp.getAddress());
 			
-			socket.send(arrayOutputStream.toByteArray());
+			System.out.println(socket.send(arrayOutputStream.toByteArray()));
 			
 			byte[] buffer = new byte[1500];
 			while (true) {
