@@ -23,6 +23,7 @@
 
 using namespace std;
 
+
 int getInterfaceIndex(int socket, const char* interface) {
 	struct ifreq req;
 	strncpy(req.ifr_name, interface, IFNAMSIZ);
@@ -51,26 +52,26 @@ sockaddr_ll getLinkLayerSocket(JNIEnv* env, int socket, jstring interface) {
 	return socketAddress;
 }
 
-JNIEXPORT jint JNICALL Java_at_andiwand_packetsocket_EthernetSocket_openImpl(
+JNIEXPORT jint JNICALL Java_at_stefl_packetsocket_EthernetSocket_openImpl(
 		JNIEnv* env, jclass clazz, jint protocol) {
 	jint result = socket(PF_PACKET, SOCK_RAW, htons(protocol));
 
 	return result;
 }
 
-JNIEXPORT void JNICALL Java_at_andiwand_packetsocket_EthernetSocket_closeImpl(
+JNIEXPORT void JNICALL Java_at_stefl_packetsocket_EthernetSocket_closeImpl(
 		JNIEnv* env, jclass clazz, jint socket) {
 	close(socket);
 }
 
-JNIEXPORT void JNICALL Java_at_andiwand_packetsocket_EthernetSocket_bindImpl(
+JNIEXPORT void JNICALL Java_at_stefl_packetsocket_EthernetSocket_bindImpl(
 		JNIEnv* env, jclass clazz, jint socket, jstring interface) {
 	sockaddr_ll socketAddress = getLinkLayerSocket(env, socket, interface);
 
 	bind(socket, (sockaddr*) &socketAddress, sizeof(socketAddress));
 }
 
-JNIEXPORT void JNICALL Java_at_andiwand_packetsocket_EthernetSocket_enablePromiscModeImpl(
+JNIEXPORT void JNICALL Java_at_stefl_packetsocket_EthernetSocket_enablePromiscModeImpl(
 		JNIEnv* env, jclass clazz, jint socket, jstring interface) {
 	sockaddr_ll socketAddress = getLinkLayerSocket(env, socket, interface);
 
@@ -80,7 +81,7 @@ JNIEXPORT void JNICALL Java_at_andiwand_packetsocket_EthernetSocket_enablePromis
 	setsockopt(socket, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr));
 }
 
-JNIEXPORT jint JNICALL Java_at_andiwand_packetsocket_EthernetSocket_receiveImpl(
+JNIEXPORT jint JNICALL Java_at_stefl_packetsocket_EthernetSocket_receiveImpl(
 		JNIEnv* env, jclass clazz, jint socket, jbyteArray buffer, jint offset,
 		jint length, jint flags) {
 	jboolean isCopy;
@@ -93,7 +94,8 @@ JNIEXPORT jint JNICALL Java_at_andiwand_packetsocket_EthernetSocket_receiveImpl(
 
 	return result;
 }
-JNIEXPORT jint JNICALL Java_at_andiwand_packetsocket_EthernetSocket_receiveFromImpl(
+
+JNIEXPORT jint JNICALL Java_at_stefl_packetsocket_EthernetSocket_receiveFromImpl(
 		JNIEnv* env, jclass clazz, jint socket, jstring interface,
 		jbyteArray buffer, jint offset, jint length, jint flags) {
 	jboolean isCopy;
@@ -109,7 +111,7 @@ JNIEXPORT jint JNICALL Java_at_andiwand_packetsocket_EthernetSocket_receiveFromI
 	return result;
 }
 
-JNIEXPORT jint JNICALL Java_at_andiwand_packetsocket_EthernetSocket_sendImpl(
+JNIEXPORT jint JNICALL Java_at_stefl_packetsocket_EthernetSocket_sendImpl(
 		JNIEnv* env, jclass clazz, jint socket, jbyteArray buffer, jint offset,
 		jint length, jint flags) {
 	jboolean isCopy;
@@ -122,7 +124,8 @@ JNIEXPORT jint JNICALL Java_at_andiwand_packetsocket_EthernetSocket_sendImpl(
 
 	return result;
 }
-JNIEXPORT jint JNICALL Java_at_andiwand_packetsocket_EthernetSocket_sendToImpl(
+
+JNIEXPORT jint JNICALL Java_at_stefl_packetsocket_EthernetSocket_sendToImpl(
 		JNIEnv* env, jclass clazz, jint socket, jstring interface,
 		jbyteArray buffer, jint offset, jint length, jint flags) {
 	jboolean isCopy;
